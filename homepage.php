@@ -1,3 +1,5 @@
+<?php require("mainSQL.php"); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -107,6 +109,35 @@
         <input class="searchbar contact-search" type="text" name="" id="" placeholder="Search..." />
 
         <div class="contact-container">
+          <?php 
+            $query = "SELECT * FROM contacts";
+            $result = mysqli_query($conn, $query);
+            $row = mysqli_fetch_assoc($result);
+
+            if (mysqli_num_rows($result) != 0) {
+            
+              while ($row = mysqli_fetch_assoc($result)) {
+                echo "<div class='contact-item item'>";
+                echo "<i class='fa-regular fa-circle-user profilepic'></i>";
+                echo "<div class='contact-info'>";
+                echo "<div class='contact-content'>";
+                echo "<p class=name'>$row[fName] "."$row[lName]"."</p>";
+                echo "</div>";
+                echo "</div>";
+                echo "<i class='ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl'>";
+                echo "<div class='more-actions'>";
+                echo "<i class='fa-regular fa-trash-can'></i><a href=''>Delete</a>";
+                echo "</div>";
+                echo "</i>";
+                echo "</div>";
+              }
+            }
+
+            else {
+                //Display 'No Contacts'
+            }
+          ?>
+
           <!-- --- contact item----  -->
           <div class="contact-item item">
             <i class="fa-regular fa-circle-user profilepic"></i>
@@ -122,6 +153,7 @@
             </i>
           </div>
           <!-- --- end of contact item----  -->
+
         </div>
       </div>
       <!-- -- end of Contacts --  -->
@@ -138,26 +170,46 @@
         <!-- ------------------------  -->
         <!-- -------- Chat container --------  -->
         <div class="chat-content">
-          <p class="sender chat-message">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.
-          </p>
-          <p class="reciever chat-message">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.
-          </p>
-          <p class="sender chat-message">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.
-          </p>
-          <p class="reciever chat-message">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.
-          </p>
+          
+          <?php
+            $senderNum = "639958751284";
+            $receiverNum = "639917909540";
+
+            $query = "SELECT * FROM msg
+                      WHERE (senderNum = '$senderNum' AND receiverNum = '$receiverNum')
+                        OR (senderNum = '$receiverNum' AND receiverNum = '$senderNum') ORDER BY msg.datetime ASC";
+            $result = mysqli_query($conn, $query);
+
+            if (mysqli_num_rows($result) != 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+                if ($row['senderNum'] == $senderNum) {
+                ?>
+                <p class="sender chat-message">
+                <?php 
+                  echo $row['msg'];
+                ?>
+                </p>
+
+                <?php
+              }
+              
+              else {
+                ?>
+
+                <p class="reciever chat-message">
+                <?php 
+                  echo $row['msg'];
+                ?>
+                </p>
+
+                <?php
+
+              }
+              }
+            }
+
+
+          ?>
         </div>
         <!-- ------------------ end of Chat container --------------  -->
         <!-- ---- Input message--------  -->
@@ -185,12 +237,11 @@
         <a class="close" href="#"><i class="fa-solid fa-xmark fa-xl"></i> </a>
       </div>
       <div class="content">
-        <form action="" class="contact-form">
-          <input class="textbox" type="text" name="" id="" placeholder="First Name" />
-          <input class="textbox" type="text" name="" id="" placeholder="Last Name" />
-          <input class="textbox" type="text" name="" id="" placeholder="Phone Number" />
-
-          <a href="#" class=""><input type="button" class="modal-button" value="Save" /></a>
+        <form method="POST" action="mainSQL.php" class="contact-form">
+          <input class="textbox" type="text" name="fName" placeholder="First Name" maxlength="15" required/>
+          <input class="textbox" type="text" name="lName" placeholder="Last Name" maxlength="15" required/>
+          <input class="textbox" type="number" name="num" placeholder="639*********" maxlength="12" required/>
+          <input type="submit" class="modal-button" name="addContact" value="Save"/>
         </form>
       </div>
     </div>
