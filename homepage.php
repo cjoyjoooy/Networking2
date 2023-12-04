@@ -276,7 +276,10 @@
                       echo $contactName;
                       ?></td>
                   <td>
-                    <button class="button add-contact" , onclick="addContactNumber('<?= $contactName ?>', <?php echo $row['number']; ?>)">
+                    <input type="hidden" id="number" name="number" value="<?php echo $row['number']; ?>">
+                  </td>
+                  <td>
+                    <button class="button add-contact" , onclick="addContactNumber('<?= $contactName ?>')">
                       <i class="fa-solid fa-plus fa-sm"></i>
                     </button>
                   </td>
@@ -302,45 +305,40 @@
   <script>
     const table = document.getElementById('table-contacts');
     const divElement = document.getElementById('chat-members');
-    const contactNumbers = []
+    const numberInput = document.getElementById('number');
+    let userInformation = [];
 
-    function addContactNumber(content, number) {
-      contactNumbers.push(number);
-      console.log(contactNumbers);
+    function addContactNumber(content) {
+      const actualNumber = numberInput.value;
+      userInformation.push([content, actualNumber]);
+      console.log(userInformation);
 
       const spanElement = document.createElement('span');
       spanElement.classList.add('chatname');
       spanElement.innerHTML = `${content} <i class="remove-name fa-solid fa-xmark fa-sm"></i>`;
       divElement.appendChild(spanElement);
 
-      // Attach event listener to the remove icon after appending the span
       const removeIconElement = spanElement.querySelector('.remove-name');
       removeIconElement.addEventListener('click', (event) => {
-        event.target.parentElement.parentNode.removeChild(event.target.parentElement); // Remove the span element from its parent
+        event.target.parentElement.parentNode.removeChild(event.target.parentElement);
         const removedContent = event.target.parentElement.textContent.trim();
-        addBackRemovedRow(removedContent);
-        contactNumbers.pop();
-        console.log(contactNumbers);
+        addBackRemovedRow(removedContent, actualNumber); // Pass both content and phone number
+        userInformation = removeRowFiltering(userInformation, content);
+        console.log(userInformation);
       });
 
       const currentRow = document.querySelector(`tr[data-contactid="${content}"]`);
-      console.log(currentRow)
-      // Check if the row exists and is a valid DOM element
       if (currentRow && currentRow.parentNode) {
-        // Remove the current table row
         currentRow.parentNode.removeChild(currentRow);
       } else {
         console.error(`Unable to find row with number: ${content}`);
       }
     }
 
-    // Function to add back the removed TR element
-    function addBackRemovedRow(content) {
-      // Create a new TR element
+    function addBackRemovedRow(content, phoneNumber) {
       const newRow = document.createElement('tr');
       newRow.setAttribute('data-contactid', content);
 
-      // Add the profile icon cell
       const profileCell = document.createElement('td');
       const profileIcon = document.createElement('i');
       profileIcon.classList.add('fa-regular');
@@ -348,11 +346,14 @@
       profileIcon.classList.add('profilepic');
       profileCell.appendChild(profileIcon);
 
-      // Add the contact name cell
       const nameCell = document.createElement('td');
       nameCell.textContent = content;
 
-      // Add the add contact button cell
+      const numberCell = document.createElement('input');
+      numberCell.type = 'hidden';
+      numberCell.name = 'phoneNumber';
+      numberCell.value = phoneNumber; // Display the phone number in a separate cell
+
       const buttonCell = document.createElement('td');
       const addContactButton = document.createElement('button');
       addContactButton.classList.add('button');
@@ -361,13 +362,17 @@
       addContactButton.innerHTML = `<i class="fa-solid fa-plus fa-sm"></i>`;
       buttonCell.appendChild(addContactButton);
 
-      // Append the cells to the new TR element
       newRow.appendChild(profileCell);
       newRow.appendChild(nameCell);
+      newRow.appendChild(numberCell); // Add the number cell before appending
       newRow.appendChild(buttonCell);
 
-      // Append the new TR element to the table
       table.appendChild(newRow);
+    }
+
+    function removeRowFiltering(data, targetValue) {
+      const newData = data.filter((row) => !row.includes(targetValue));
+      return newData;
     }
   </script>
 </body>
