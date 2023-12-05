@@ -200,8 +200,9 @@
                   <?php
                   echo $row['msg'];
                   ?>
+                  <br><br>
+                  <span style="color:grey"><?php echo $row['datetime'] ?></span>
                 </p>
-
               <?php
               } else {
               ?>
@@ -210,6 +211,8 @@
                   <?php
                   echo $row['msg'];
                   ?>
+                  <br><br>
+                  <span style="color:thistle"><?php echo $row['datetime'] ?></span>
                 </p>
 
           <?php
@@ -290,10 +293,10 @@
                       echo $contactName;
                       ?></td>
                   <td>
-                    <input type="hidden" id="number" name="number" value="<?php echo $row['number']; ?>">
+                    <input type="hidden" class="hidden-number" name="number" value="<?php echo $row['number']; ?>">
                   </td>
                   <td>
-                    <button class="button add-contact" , onclick="addContactNumber('<?= $contactName ?>')">
+                    <button class="button add-contact" , onclick="addContactNumber(this ,'<?= $contactName ?>')">
                       <i class="fa-solid fa-plus fa-sm"></i>
                     </button>
                   </td>
@@ -317,31 +320,39 @@
 
   <script src="main.js"></script>
   <script>
+    const messageItemElements = document.querySelectorAll('.message-item');
     const table = document.getElementById('table-contacts');
     const divElement = document.getElementById('chat-members');
-    const numberInput = document.getElementById('number');
     let userInformation = [];
 
-    function addContactNumber(content) {
-      const actualNumber = numberInput.value;
+    function addContactNumber(button, content) {
+      const hiddenInput = button.closest('tr').querySelector('.hidden-number');
+      const actualNumber = hiddenInput ? hiddenInput.value : null;
       userInformation.push([content, actualNumber]);
       console.log(userInformation);
 
       const spanElement = document.createElement('span');
       spanElement.classList.add('chatname');
-      spanElement.innerHTML = `${content} <i class="remove-name fa-solid fa-xmark fa-sm"></i>`;
+      spanElement.innerHTML = `${content} <input type="hidden" class="hidden-number" name="number" value="${actualNumber}"> <i class="remove-name fa-solid fa-xmark fa-sm"></i>`;
       divElement.appendChild(spanElement);
 
       const removeIconElement = spanElement.querySelector('.remove-name');
       removeIconElement.addEventListener('click', (event) => {
-        event.target.parentElement.parentNode.removeChild(event.target.parentElement);
-        const removedContent = event.target.parentElement.textContent.trim();
-        addBackRemovedRow(removedContent, actualNumber); // Pass both content and phone number
+        const spanElement = event.target.parentElement;
+        const hiddenInput = spanElement.querySelector('.hidden-number');
+        const removedName = spanElement.textContent.trim();
+        const removedNumber = hiddenInput.value;
+
+        // Remove the spanElement
+        spanElement.parentNode.removeChild(spanElement);
+
+        // Add the removed row back to the table
+        addBackRemovedRow(removedName, removedNumber);
         userInformation = removeRowFiltering(userInformation, content);
         console.log(userInformation);
       });
 
-      const currentRow = document.querySelector(`tr[data-contactid="${content}"]`);
+      const currentRow = button.closest('tr');
       if (currentRow && currentRow.parentNode) {
         currentRow.parentNode.removeChild(currentRow);
       } else {
@@ -363,22 +374,27 @@
       const nameCell = document.createElement('td');
       nameCell.textContent = content;
 
-      const numberCell = document.createElement('input');
-      numberCell.type = 'hidden';
-      numberCell.name = 'phoneNumber';
-      numberCell.value = phoneNumber; // Display the phone number in a separate cell
+      const numberCell1 = document.createElement('td');
+      const numberCell2 = document.createElement('input');
+      numberCell2.type = 'hidden';
+      numberCell2.className = 'hidden-number';
+      numberCell2.name = 'number';
+      numberCell2.value = phoneNumber; // Display the phone number in a separate cell
+      numberCell1.appendChild(numberCell2);
 
       const buttonCell = document.createElement('td');
       const addContactButton = document.createElement('button');
       addContactButton.classList.add('button');
       addContactButton.classList.add('add-contact');
-      addContactButton.addEventListener('click', () => addContactNumber(content));
+      addContactButton.addEventListener('click', function() {
+        addContactNumber(this, content);
+      });
       addContactButton.innerHTML = `<i class="fa-solid fa-plus fa-sm"></i>`;
       buttonCell.appendChild(addContactButton);
 
       newRow.appendChild(profileCell);
       newRow.appendChild(nameCell);
-      newRow.appendChild(numberCell); // Add the number cell before appending
+      newRow.appendChild(numberCell1); // Add the number cell before appending
       newRow.appendChild(buttonCell);
 
       table.appendChild(newRow);
@@ -388,7 +404,22 @@
       const newData = data.filter((row) => !row.includes(targetValue));
       return newData;
     }
+
+    function updateChatHeaderName(fullName) {
+      const chatHeaderElement = document.querySelector('.chat-header');
+      const nameElement = chatHeaderElement.querySelector('.name');
+      nameElement.textContent = fullName;
+    }
+
+    messageItemElements.forEach((element) => {
+      element.addEventListener('click', () => {
+        const messageItemContent = element.querySelector('.message-content');
+        const fullName = messageItemContent.querySelector('.name').textContent;
+        updateChatHeaderName(fullName);
+      });
+    });
   </script>
+
 </body>
 
 </html>

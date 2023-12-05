@@ -1,61 +1,57 @@
+<?php require("mainSQL.php"); ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Hidden Input Value</title>
+</head>
 
 <body>
 
-    <?php
+    <table id="table-contacts">
+        <!-- ----table row-----------  -->
+        <?php
+        $query = "SELECT * FROM `contacts`";
+        $result = mysqli_query($conn, $query);
 
-    $numbers = array(0, 1, 2);
+        if (mysqli_num_rows($result) != 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $contactName = $row['fName'] . " " . $row['lName'];
+        ?>
+                <tr data-contactid="<?= $contactName ?>">
+                    <td><i class="fa-regular fa-circle-user profilepic"></i></td>
+                    <td><?= $contactName ?></td>
+                    <td>
+                        <input type="hidden" class="hidden-number" name="number" value="<?= $row['number'] ?>">
+                    </td>
+                    <td>
+                        <button class="button add-contact" onclick="addContactNumber(this)">
+                            <i class="fa-solid fa-plus fa-sm"></i>
+                        </button>
+                    </td>
+                </tr>
+        <?php
+            }
+        }
+        ?>
+        <!-- -------end of table row-------  -->
+    </table>
 
-    for ($i = 0; $i < count($numbers); $i++) {
-        echo "The number is: $numbers[$i] <br>";
-    }
-    ?>
-    <button type="button" , onclick="data1AddToInformation()">Karl</button>
-    <button type="button" , onclick="data2AddToInformation()">Tan</button>
+    <script>
+        function addContactNumber(button) {
+            // Traverse the DOM to find the hidden input in the same row
+            var hiddenInput = button.closest('tr').querySelector('.hidden-number');
 
-    <button type="button" , onclick="getData1Number()">Karl</button>
-    <button type="button" , onclick="getData2Number()">Tan</button>
+            // Extract the value from the hidden input
+            var hiddenValue = hiddenInput.value;
 
+            // Use the extracted value as needed (for example, log it to the console)
+            console.log('Hidden Value:', hiddenValue);
+        }
+    </script>
 
-    <button type="button" , onclick="tryCode()">Code Trial</button>
 </body>
-<script>
-    let information = [];
-    let data1 = [1, "Karl", "0906460274"];
-    let data2 = [2, "Tan", "09064360274"];
-
-    function data1AddToInformation() {
-        information.push(data1);
-        console.log(information);
-    }
-
-    function data2AddToInformation() {
-        information.push(data2);
-        console.log(information);
-    }
-
-    function getData1Number() {
-        console.log(information[0][2])
-    }
-
-    function getData2Number() {
-        console.log(information[1][2])
-    }
-
-    const sourceArray = [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
-    ];
-
-    const targetValue = [
-        ["hello"]
-    ];
-
-    function tryCode() {
-        console.log(targetValue.length);
-    }
-</script>
 
 </html>
