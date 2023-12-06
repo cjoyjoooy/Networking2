@@ -309,9 +309,10 @@
           </table>
         </div>
         <!------------ end of contacts table ------- -->
-        <input class="message-input" type="text" name="" id="" placeholder="Type a message..." />
-
-        <a href="#" class=""><input type="button" class="modal-button" value="Send" /></a>
+        <form id="groupMessageForm" action="sendMessage.php" method="post">
+          <input class="message-input" type="text" name="groupMessageInput" id="groupMessageInput" placeholder="Type a message..." />
+          <a href="homepage.php" class=""><button type="button" onclick="sendMessage()" class="modal-button" name="sendGroupMessage">Send Message</button></a>
+        </form>
       </div>
     </div>
   </div>
@@ -418,6 +419,29 @@
         updateChatHeaderName(fullName);
       });
     });
+
+    function sendMessage() {
+      // Assume userInformation is an array of receiverNum values
+      const receiverNumbers = userInformation.map(info => info[1]);
+
+      // Add more data if needed
+      const formData = new FormData();
+      formData.append('groupMessage', document.getElementById('groupMessageInput').value);
+      formData.append('receiverNumbers', JSON.stringify(receiverNumbers));
+
+      // Send an AJAX request
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'mainSQL.php', true);
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // Handle the response if needed
+          console.log(xhr.responseText);
+        }
+      };
+
+      xhr.send(formData);
+    }
   </script>
 
 </body>
