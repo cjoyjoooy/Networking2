@@ -6,6 +6,7 @@
     exit();
   }
   $_SESSION["senderNum"] = "639956132620";
+  $_SESSION["mode"] = "";
 
 ?>
 
@@ -27,6 +28,7 @@
   <!-- ---fontawesome icon------  -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
   <!-- ------------------------------------------------------------  -->
   <title>Home</title>
 </head>
@@ -56,14 +58,13 @@
         </ul>
         <div class="bottom-item">
           <li>
-            
             <i class="icons fa-solid fa-right-from-bracket fa-lg"></i>
-            <a>Logout</a>
-            
+            <a href="index.php">Logout</a>
           </li>
         </div>
       </div>
     </nav>
+
 
     <!-- -------end of sidebar------->
     <!-- ---------------------------------------------------------------------------------  -->
@@ -80,7 +81,7 @@
               <i class="fa-regular fa-pen-to-square fa-lg"></i></button></a>
           <!-- --end of Button  --  -->
         </div>
-        <input class="searchbar message-search" type="text" name="" id="" placeholder="Search..." />
+        <input class="searchbar message-search" type="text" id="searchbar" placeholder="Search..." onkeyup="searchBar()"/>
 
         <div class="messages-container">
           <!-- --- messages item ----  -->
@@ -120,7 +121,7 @@
                           echo "</div>";
                         ?>
                         
-                        <p class="time"><?php echo date_format(date_create($row['datetime']), "M. j, Y H:i:s a"); ?></p>
+                        <p class="time"><?php echo date_format(date_create($row['datetime']), "M. j, Y h:i a"); ?></p>
                       </div>
                     </div>
                     <i class="ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl">
@@ -197,7 +198,7 @@
 
       <!-- -- Chat box area --  -->
 
-      <div class="chatbox">
+      <div class="chatbox">  
         <div class="chat-header">
           <i class="fa-regular fa-circle-user profilepic"></i>
           <p class="name chatheadername"></p>
@@ -206,7 +207,6 @@
         <!-- ------------------------  -->
         <!-- -------- Chat container --------  -->
         <div class="chat-content" id="chat-content">
-
           <?php
 
             $query = "SELECT * FROM msg
@@ -229,21 +229,21 @@
                 }
               }
             }
-
           ?>
         </div>
         <!-- ------------------ end of Chat container --------------  -->
         <!-- ---- Input message--------  -->
         <div class="chat-input">
-          <form method="POST" target="_blank" action="test.php">
-          <input class="message-input" name="msg" type="text" placeholder="Type a message..." />
-
+          <form method="POST" action="api.php">
+          <input class="message-input" name="msg" type="text" placeholder="Type a message...">
+          <input type="hidden" name="mode" value="single">
             <button type="submit" class="button">
               <i class="fa-regular fa-paper-plane fa-lg"></i>
             </button>
        
           </form>
         </div>
+      
         <!-- ----- end of Input message--------  -->
       </div>
       <!-- ------- end of Chat box area -----  -->
@@ -285,34 +285,48 @@
       </div>
       <div class="content">
         <!----------- name of chat members ------- -->
-        <div class="chat-members">
+        <div class="chat-members" id="chat-members">
           <span>To:</span>
-          <!----------- Members name ------- -->
-          <span class="chatname">Jung Wheein<i class="remove-name fa-solid fa-xmark fa-sm"></i></span>
-          <span class="chatname">Jung Wheein<i class="remove-name fa-solid fa-xmark fa-sm"></i> </span>
-          <span class="chatname">Kim Chaewon<i class="remove-name fa-solid fa-xmark fa-sm"></i> </span>
-          <!--------------------------------- -->
         </div>
         <!----------- end name of chat members ------- -->
         <!------------ contacts table ------- -->
         <div class="table-container">
-          <table>
+          <table id="table-contacts">
             <!-- ----table row-----------  -->
-            <tr>
-              <td><i class="fa-regular fa-circle-user profilepic"></i></td>
-              <td>Kim Chaewon</td>
-              <td>
-                <button class="button add-contact">
-                  <i class="fa-solid fa-plus fa-sm"></i>
-                </button>
-              </td>
-            </tr>
+            <?php
+            $query = "SELECT * FROM `contacts`";
+            $result = mysqli_query($conn, $query);
+
+            if (mysqli_num_rows($result) != 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+                $contactName = $row['fName'] . " " . $row['lName'];
+            ?><tr data-contactid="<?php echo $contactName; ?>">
+                  <td><i class="fa-regular fa-circle-user profilepic"></i></td>
+                  <td><?php
+                      echo $contactName;
+                      ?></td>
+                  <td>
+                    <input type="hidden" class="hidden-number" name="number" value="<?php echo $row['number']; ?>">
+                  </td>
+                  <td>
+                    <button class="button add-contact" id="addGroupContact", onclick="addContactNumber(this ,'<?= $contactName ?>')">
+                      <i class="fa-solid fa-plus fa-sm"></i>
+                    </button>
+                  </td>
+                </tr>
+            <?php
+              }
+            }
+            ?>
             <!-- -------end of table row-------  -->
           </table>
         </div>
         <!------------ end of contacts table ------- -->
-        <input class="message-input" type="text" name="" id="" placeholder="Type a message..." />
-        <a href="#" class=""><input type="button" class="modal-button" value="Send" /></a>
+        <form id="groupMessageForm" action="api.php" method="POST">
+          <input class="message-input" type="text" name="msg" id="groupMessageInput" placeholder="Type a message..." />
+          <input type="hidden" name="mode" value="group">
+          <a><button type="submit" onclick="sendMessage()" class="modal-button" id="sendGroupMessage" name="sendGroupMessage">Send Message</button></a>
+        </form>
       </div>
     </div>
   </div>
@@ -322,4 +336,136 @@
 
 </body>
 <script src="main.js"></script>
+<script>
+  const messageItemElements = document.querySelectorAll('.message-item');
+  const table = document.getElementById('table-contacts');
+  const divElement = document.getElementById('chat-members');
+  let userInformation = [];
+
+  // const keyword = document.getElementById("searchbar");
+
+  // function searchBar() {
+  //   $.ajax({
+  //     type: "POST",
+  //     url: "mainSQL.php",
+  //     data: { "keyword": keyword },
+  // });
+  // }
+
+  function addContactNumber(button, content) {
+      const hiddenInput = button.closest('tr').querySelector('.hidden-number');
+      const actualNumber = hiddenInput ? hiddenInput.value : null;
+      userInformation.push([content, actualNumber]);
+      console.log(userInformation);
+
+      const spanElement = document.createElement('span');
+      spanElement.classList.add('chatname');
+      spanElement.innerHTML = `${content} <input type="hidden" class="hidden-number" name="number" value="${actualNumber}"> <i class="remove-name fa-solid fa-xmark fa-sm"></i>`;
+      divElement.appendChild(spanElement);
+
+      const removeIconElement = spanElement.querySelector('.remove-name');
+      removeIconElement.addEventListener('click', (event) => {
+          const spanElement = event.target.parentElement;
+          const hiddenInput = spanElement.querySelector('.hidden-number');
+          const removedName = spanElement.textContent.trim();
+          const removedNumber = hiddenInput.value;
+
+          // Remove the spanElement
+          spanElement.parentNode.removeChild(spanElement);
+
+          // Add the removed row back to the table
+          addBackRemovedRow(removedName, removedNumber);
+          userInformation = removeRowFiltering(userInformation, content);
+          console.log(userInformation);
+      });
+
+      const currentRow = button.closest('tr');
+      if (currentRow && currentRow.parentNode) {
+          currentRow.parentNode.removeChild(currentRow);
+      } else {
+          console.error(`Unable to find row with number: ${content}`);
+      }
+  }
+
+  function addBackRemovedRow(content, phoneNumber) {
+      const newRow = document.createElement('tr');
+      newRow.setAttribute('data-contactid', content);
+
+      const profileCell = document.createElement('td');
+      const profileIcon = document.createElement('i');
+      profileIcon.classList.add('fa-regular');
+      profileIcon.classList.add('fa-circle-user');
+      profileIcon.classList.add('profilepic');
+      profileCell.appendChild(profileIcon);
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = content;
+
+      const numberCell1 = document.createElement('td');
+      const numberCell2 = document.createElement('input');
+      numberCell2.type = 'hidden';
+      numberCell2.className = 'hidden-number';
+      numberCell2.name = 'number';
+      numberCell2.value = phoneNumber; // Display the phone number in a separate cell
+      numberCell1.appendChild(numberCell2);
+
+      const buttonCell = document.createElement('td');
+      const addContactButton = document.createElement('button');
+      addContactButton.classList.add('button');
+      addContactButton.classList.add('add-contact');
+      addContactButton.addEventListener('click', function () {
+          addContactNumber(this, content);
+      });
+      addContactButton.innerHTML = `<i class="fa-solid fa-plus fa-sm"></i>`;
+      buttonCell.appendChild(addContactButton);
+
+      newRow.appendChild(profileCell);
+      newRow.appendChild(nameCell);
+      newRow.appendChild(numberCell1); // Add the number cell before appending
+      newRow.appendChild(buttonCell);
+
+      table.appendChild(newRow);
+  }
+
+  function removeRowFiltering(data, targetValue) {
+      const newData = data.filter((row) => !row.includes(targetValue));
+      return newData;
+  }
+
+  function updateChatHeaderName(fullName) {
+      const chatHeaderElement = document.querySelector('.chat-header');
+      const nameElement = chatHeaderElement.querySelector('.name');
+      nameElement.textContent = fullName;
+  }
+
+  messageItemElements.forEach((element) => {
+      element.addEventListener('click', () => {
+          const messageItemContent = element.querySelector('.message-content');
+          const fullName = messageItemContent.querySelector('.name').textContent;
+          updateChatHeaderName(fullName);
+      });
+  });
+
+  function sendMessage() {
+
+      // Assume userInformation is an array of receiverNum values
+      const receiverNumbers = userInformation.map(info => info[0]);
+
+      const formData = new FormData();
+      formData.append('groupMessage', document.getElementById('groupMessageInput').value);
+      formData.append('receiverNumbers', JSON.stringify(receiverNumbers));
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'api.php', true);
+
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+              // Handle the response if needed
+              console.log(xhr.responseText);
+          }
+      };
+      xhr.send(formData);
+
+  }
+</script>
 </html>

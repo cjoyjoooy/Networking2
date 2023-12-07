@@ -44,7 +44,7 @@ items.forEach(item => {
         var headerNum = item.querySelector(".headerNum").value;
 
         item.classList.add("active");
-        chatHeaderName.textContent = itemName;
+
 
         $.ajax({
             type: "POST",
@@ -52,9 +52,11 @@ items.forEach(item => {
             data: { "chatNum": headerNum },
             success: function () {
                 $(".chat-content").load(location.href + " .chat-content");
+
             },
         });
-        console.log(headerNum);
+
+        chatHeaderName.textContent = itemName;
 
     })
 
@@ -87,13 +89,3 @@ ellipsisMenu.forEach(ellipsis => {
         })
     });
 });
-
-
-
-
-
-
-
-
-
-
