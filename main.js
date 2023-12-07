@@ -29,16 +29,35 @@ menulinks.forEach(link => {
     })
 });
 
-const items = document.querySelectorAll(".item")
+const items = document.querySelectorAll(".item");
 
 items.forEach(item => {
     item.addEventListener('click', (e) => {
+        e.preventDefault();
         items.forEach(item => {
             item.classList.remove("active");
+
         })
-        e.preventDefault();
+
+        itemName = item.querySelector(".name").textContent;
+        chatHeaderName = document.querySelector(".chatheadername");
+        var headerNum = item.querySelector(".headerNum").value;
+
         item.classList.add("active");
+        chatHeaderName.textContent = itemName;
+
+        $.ajax({
+            type: "POST",
+            url: "homepage.php",
+            data: { "chatNum": headerNum },
+            success: function () {
+                $(".chat-content").load(location.href + " .chat-content");
+            },
+        });
+        console.log(headerNum);
+
     })
+
 })
 
 const ellipsisMenu = document.querySelectorAll('.ellipsis-menu');

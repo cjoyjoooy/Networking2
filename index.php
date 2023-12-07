@@ -9,6 +9,15 @@
 </head>
 
 <body>
+  <script>
+    <?php
+      if (isset($_GET['success'])) {
+    ?>
+      alert('Account successfully created!');
+    <?php
+      }
+    ?>
+  </script>
   <div class="container-wrapper">
     <div class="container">
       <div class="login-container">

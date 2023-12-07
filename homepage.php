@@ -1,4 +1,13 @@
-<?php require("mainSQL.php"); ?>
+<?php 
+  require("mainSQL.php"); 
+
+  if (isset($_POST["chatNum"])) {
+    $_SESSION["receiverNum"] = $_POST['chatNum'];
+    exit();
+  }
+  $_SESSION["senderNum"] = "639956132620";
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +26,7 @@
   <!--                                   -->
   <!-- ---fontawesome icon------  -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <!-- ------------------------------------------------------------  -->
   <title>Home</title>
 </head>
@@ -46,8 +56,10 @@
         </ul>
         <div class="bottom-item">
           <li>
+            
             <i class="icons fa-solid fa-right-from-bracket fa-lg"></i>
-            <a href="index.php">Logout</a>
+            <a>Logout</a>
+            
           </li>
         </div>
       </div>
@@ -72,24 +84,60 @@
 
         <div class="messages-container">
           <!-- --- messages item ----  -->
-          <div class="message-item item">
-            <i class="fa-regular fa-circle-user profilepic"></i>
-            <div class="messeage-info">
-              <div class="message-content">
-                <p class="name">Kim Chaewon</p>
-                <div class="message">
-                  Hello, how are u? Hello, how are u?Hello, how are u?Hello,
-                  how are u?Hello, how are u?
-                </div>
-              </div>
-              <p class="time">12:30 PM</p>
-            </div>
-            <i class="ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl">
-              <div class="more-actions">
-                <i class="fa-regular fa-trash-can"></i><a href="">Delete</a>
-              </div>
-            </i>
-          </div>
+           <?php
+
+              $query = "SELECT DISTINCT contacts.*, msg.*
+                        FROM contacts
+                        RIGHT JOIN msg ON (contacts.number = msg.receiverNum) OR (contacts.number = msg.senderNum)
+                        WHERE msg.senderNum = $_SESSION[senderNum] OR (msg.receiverNum = $_SESSION[senderNum])
+                        ORDER BY msg.datetime DESC";
+              $result = mysqli_query($conn, $query);
+
+              $numArr[] = array();
+
+              if (mysqli_num_rows($result) != 0) {
+                while ($row = mysqli_fetch_assoc($result))  {
+                  $number = $row['number'];
+                  
+                  if (!in_array($number, $numArr)) array_push($numArr, $number);
+                  else continue;
+                  
+                 ?>
+                  <div class="message-item item">
+                    <i class="fa-regular fa-circle-user profilepic"></i>
+                    <div class="message-info">
+                      <div class="message-content">
+                        <?php
+                          $fName = $row['fName'];
+                        
+                          echo "<p class='name'>$row[fName] "."$row[lName]</p>";
+                          echo "<input class='headerNum' type='hidden' value='$number'>";
+                          echo "<div class='message'>";
+                          
+                          if ($row['senderNum'] == $_SESSION['senderNum']) echo "You: ".$row['msg'];
+                          else echo $fName.": ".$row['msg'];
+                        
+                          echo "</div>";
+                        ?>
+                        
+                        <p class="time"><?php echo date_format(date_create($row['datetime']), "M. j, Y H:i:s a"); ?></p>
+                      </div>
+                    </div>
+                    <i class="ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl">
+                      <div class="more-actions">
+                        <i class="fa-regular fa-trash-can"></i><a href="">Delete</a>
+                      </div>
+                    </i>
+                  </div>
+                <?php
+
+                }
+              }
+              else {
+                //Display 'no conversations'
+              }
+
+            ?>    
           <!-- --- end of messages item ----  -->
         </div>
       </div>
@@ -107,12 +155,14 @@
           <!-- --end of Button  --  -->
         </div>
         <input class="searchbar contact-search" type="text" name="" id="" placeholder="Search..." />
+        
+        
+        <!-- --- contact item----  -->
 
         <div class="contact-container">
           <?php 
             $query = "SELECT * FROM contacts";
             $result = mysqli_query($conn, $query);
-            $row = mysqli_fetch_assoc($result);
 
             if (mysqli_num_rows($result) != 0) {
             
@@ -121,7 +171,8 @@
                 echo "<i class='fa-regular fa-circle-user profilepic'></i>";
                 echo "<div class='contact-info'>";
                 echo "<div class='contact-content'>";
-                echo "<p class=name'>$row[fName] "."$row[lName]"."</p>";
+                echo "<p class='name'>$row[fName] "."$row[lName]"."</p>";
+                echo "<input class='headerNum' type='hidden' value='$row[number]'>";
                 echo "</div>";
                 echo "</div>";
                 echo "<i class='ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl'>";
@@ -137,21 +188,6 @@
                 //Display 'No Contacts'
             }
           ?>
-
-          <!-- --- contact item----  -->
-          <div class="contact-item item">
-            <i class="fa-regular fa-circle-user profilepic"></i>
-            <div class="contact-info">
-              <div class="contact-content">
-                <p class="name">Kim Chaewon</p>
-              </div>
-            </div>
-            <i class="ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl">
-              <div class="more-actions">
-                <i class="fa-regular fa-trash-can"></i><a href="">Delete</a>
-              </div>
-            </i>
-          </div>
           <!-- --- end of contact item----  -->
 
         </div>
@@ -164,59 +200,49 @@
       <div class="chatbox">
         <div class="chat-header">
           <i class="fa-regular fa-circle-user profilepic"></i>
-          <p class="name">Kim Chaewon</p>
+          <p class="name chatheadername"></p>
         </div>
         <hr />
         <!-- ------------------------  -->
         <!-- -------- Chat container --------  -->
-        <div class="chat-content">
-          
+        <div class="chat-content" id="chat-content">
+
           <?php
-            $senderNum = "639958751284";
-            $receiverNum = "639917909540";
 
             $query = "SELECT * FROM msg
-                      WHERE (senderNum = '$senderNum' AND receiverNum = '$receiverNum')
-                        OR (senderNum = '$receiverNum' AND receiverNum = '$senderNum') ORDER BY msg.datetime ASC";
+                      WHERE (senderNum = '$_SESSION[senderNum]' AND receiverNum = '$_SESSION[receiverNum]')
+                      OR (senderNum = '$_SESSION[receiverNum]' AND receiverNum = '$_SESSION[senderNum]') 
+                      ORDER BY msg.datetime ASC";
             $result = mysqli_query($conn, $query);
 
             if (mysqli_num_rows($result) != 0) {
               while ($row = mysqli_fetch_assoc($result)) {
-                if ($row['senderNum'] == $senderNum) {
-                ?>
-                <p class="sender chat-message">
-                <?php 
+                if ($row['senderNum'] == $_SESSION["senderNum"]) {
+                  echo "<p class='reciever chat-message'>";
                   echo $row['msg'];
-                ?>
-                </p>
-
-                <?php
-              }
-              
-              else {
-                ?>
-
-                <p class="reciever chat-message">
-                <?php 
+                  echo " </p>";
+              } 
+                else {
+                  echo "<p class='sender chat-message'>";
                   echo $row['msg'];
-                ?>
-                </p>
-
-                <?php
-
-              }
+                  echo "</p>"; 
+                }
               }
             }
-
 
           ?>
         </div>
         <!-- ------------------ end of Chat container --------------  -->
         <!-- ---- Input message--------  -->
         <div class="chat-input">
-          <input class="message-input" type="text" placeholder="Type a message..." />
-          <a href=""><button class="button">
-              <i class="fa-regular fa-paper-plane fa-lg"></i></button></a>
+          <form method="POST" target="_blank" action="test.php">
+          <input class="message-input" name="msg" type="text" placeholder="Type a message..." />
+
+            <button type="submit" class="button">
+              <i class="fa-regular fa-paper-plane fa-lg"></i>
+            </button>
+       
+          </form>
         </div>
         <!-- ----- end of Input message--------  -->
       </div>
@@ -263,7 +289,7 @@
           <span>To:</span>
           <!----------- Members name ------- -->
           <span class="chatname">Jung Wheein<i class="remove-name fa-solid fa-xmark fa-sm"></i></span>
-          <span class="chatname">Jugn Wheein<i class="remove-name fa-solid fa-xmark fa-sm"></i> </span>
+          <span class="chatname">Jung Wheein<i class="remove-name fa-solid fa-xmark fa-sm"></i> </span>
           <span class="chatname">Kim Chaewon<i class="remove-name fa-solid fa-xmark fa-sm"></i> </span>
           <!--------------------------------- -->
         </div>
@@ -286,7 +312,6 @@
         </div>
         <!------------ end of contacts table ------- -->
         <input class="message-input" type="text" name="" id="" placeholder="Type a message..." />
-
         <a href="#" class=""><input type="button" class="modal-button" value="Send" /></a>
       </div>
     </div>
@@ -294,7 +319,7 @@
 
   <!-- ------------------end of Group message contact Modal -------------------------  -->
 
-  <script src="main.js"></script>
-</body>
 
+</body>
+<script src="main.js"></script>
 </html>
