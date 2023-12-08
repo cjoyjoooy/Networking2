@@ -39,9 +39,6 @@ items.forEach(item => {
         items.forEach(item => {
             item.classList.remove("active");
             chatbox.style.display = "none";
-
-
-
         })
 
         chatbox.style.display = "flex";
@@ -51,7 +48,7 @@ items.forEach(item => {
         var headerNum = item.querySelector(".headerNum").value;
 
         item.classList.add("active");
-
+        chatHeaderName.textContent = itemName;
 
         $.ajax({
             type: "POST",
@@ -62,12 +59,44 @@ items.forEach(item => {
 
             },
         });
-
-        chatHeaderName.textContent = itemName;
-
     })
-
 })
+
+const delMsg = document.querySelectorAll(".delMsg");
+delMsg.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        var receiver = document.querySelector(".receiverNum").value;
+
+        $.ajax({
+            type: "POST",
+            url: "mainSQL.php",
+            data: { "receiver": receiver },
+            success: function () {
+                $(".message-item").load(location.href + " .message-item");
+            },
+        });
+    });
+});
+
+const delCont = document.querySelectorAll(".delCont");
+delCont.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        var contNum = item.querySelector(".contNum").value;
+
+        $.ajax({
+            type: "POST",
+            url: "mainSQL.php",
+            data: { "contNum": contNum },
+            success: function () {
+                $(".contact-container").load(location.href + " .contact-container");
+            },
+        });
+    });
+});
 
 const ellipsisMenu = document.querySelectorAll('.ellipsis-menu');
 

@@ -5,9 +5,6 @@ if (isset($_POST["chatNum"])) {
   $_SESSION["receiverNum"] = $_POST['chatNum'];
   exit();
 }
-$_SESSION["senderNum"] = "639956132620";
-$_SESSION["mode"] = "";
-
 ?>
 
 <!DOCTYPE html>
@@ -34,6 +31,12 @@ $_SESSION["mode"] = "";
 </head>
 
 <body>
+  <script>
+    <?php 
+      if (isset($_GET['success'])) echo "alert('Successfully Logged In!')"; 
+      if (isset($_GET['added'])) echo "alert('Contact Added!')";    
+    ?>
+  </script>
   <div class="grid-container-wrapper">
     <!-- ------------------sidebar------------->
 
@@ -41,25 +44,27 @@ $_SESSION["mode"] = "";
       <div class="user-container">
         <i class="fa-regular fa-circle-user profilepic"></i>
         <span class="user-info">
-          <p class="name">Kim Chaewon</p>
-          <p class="username">@chaechae</p>
+          <p class="name"><?php echo $_SESSION['name']; ?></p>
+          <p class="username">@<?php echo $_SESSION['uName']; ?></p>
         </span>
       </div>
       <div class="menu">
         <ul class="menu-items">
           <li class="active" id="messages-link">
             <i class="icons fa-regular fa-envelope fa-lg"></i>
-            <a href="#">Messages</a>
+            <a>Messages</a>
           </li>
           <li id="contacts-link">
             <i class="icons fa-regular fa-address-book fa-lg"></i>
-            <a href="#">Contacts</a>
+            <a>Contacts</a>
           </li>
         </ul>
         <div class="bottom-item">
           <li>
-            <i class="icons fa-solid fa-right-from-bracket fa-lg"></i>
-            <a href="index.php">Logout</a>
+            <form action="mainSQL.php" method="POST">
+              <i class="icons fa-solid fa-right-from-bracket fa-lg"></i>
+              <a><button type="submit" name="logout">Logout</button></a>
+          </form>
           </li>
         </div>
       </div>
@@ -81,7 +86,7 @@ $_SESSION["mode"] = "";
               <i class="fa-regular fa-pen-to-square fa-lg"></i></button></a>
           <!-- --end of Button  --  -->
         </div>
-        <input class="searchbar message-search" type="text" id="searchbar" placeholder="Search..." onkeyup="searchBar()" />
+        <input class="searchbar message-search" type="text" id="searchbar" placeholder="Search..."/>
 
         <div class="messages-container">
           <!-- --- messages item ----  -->
@@ -125,8 +130,9 @@ $_SESSION["mode"] = "";
                   </div>
                 </div>
                 <i class="ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl">
-                  <div class="more-actions">
-                    <i class="fa-regular fa-trash-can"></i><a href="">Delete</a>
+                  <div class="more-actions delMsg">  
+                    <input type="hidden" class="receiverNum" value="<?php echo $number; ?>"> 
+                    <i class="fa-regular fa-trash-can"></i><a>Delete</a>                  
                   </div>
                 </i>
               </div>
@@ -176,8 +182,9 @@ $_SESSION["mode"] = "";
               echo "</div>";
               echo "</div>";
               echo "<i class='ellipsis-menu fa-solid fa-ellipsis-vertical fa-xl'>";
-              echo "<div class='more-actions'>";
-              echo "<i class='fa-regular fa-trash-can'></i><a href=''>Delete</a>";
+              echo "<div class='more-actions delCont'>";
+              echo "<input type='hidden' class='contNum' value='$row[number]'>";
+              echo "<i class='fa-regular fa-trash-can'></i><a>Delete</a>";
               echo "</div>";
               echo "</i>";
               echo "</div>";
@@ -296,16 +303,15 @@ $_SESSION["mode"] = "";
             if (mysqli_num_rows($result) != 0) {
               while ($row = mysqli_fetch_assoc($result)) {
                 $contactName = $row['fName'] . " " . $row['lName'];
+                $number = $row['number'];
             ?><tr data-contactid="<?php echo $contactName; ?>">
                   <td><i class="fa-regular fa-circle-user profilepic"></i></td>
-                  <td><?php
-                      echo $contactName;
-                      ?></td>
+                  <td><?php echo $contactName;?></td>
                   <td>
-                    <input type="hidden" class="hidden-number" name="number" value="<?php echo $row['number']; ?>">
+                    <input type="hidden" class="hidden-number" name="number" value="<?php echo $number; ?>">
                   </td>
                   <td>
-                    <button class="button add-contact" id="addGroupContact" , onclick="addContactNumber(this ,'<?= $contactName ?>')">
+                    <button class="button add-contact" id="addGroupContact" , onclick="addContactNumber(this ,'<?= $number; ?>')">
                       <i class="fa-solid fa-plus fa-sm"></i>
                     </button>
                   </td>
