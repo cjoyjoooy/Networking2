@@ -75,8 +75,8 @@
         mysqli_query($conn, $query);
 
         $query = "DELETE FROM msg 
-                WHERE (senderNum = $_SESSION[senderNum] AND receiverNum = $_POST[receiver])
-                OR (receiverNum = $_SESSION[senderNum]  AND senderNum = $_POST[receiver])";
+                WHERE (senderNum = $_SESSION[senderNum] AND receiverNum = $_POST[contNum])
+                OR (receiverNum = $_SESSION[senderNum]  AND senderNum = $_POST[contNum])";
 
         mysqli_query($conn, $query);
     }
