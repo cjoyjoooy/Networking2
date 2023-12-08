@@ -74,6 +74,7 @@ delMsg.forEach(item => {
             url: "mainSQL.php",
             data: { "receiver": receiver },
             success: function () {
+                location.href = "homepage.php";
                 $(".message-item").load(location.href + " .message-item");
             },
         });
