@@ -30,15 +30,19 @@ menulinks.forEach(link => {
 });
 
 const items = document.querySelectorAll(".item");
+const chatbox = document.querySelector(".chatbox")
 
 items.forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
         items.forEach(item => {
             item.classList.remove("active");
+            chatbox.style.display = "none";
+
 
         })
 
+        chatbox.style.display = "flex";
         itemName = item.querySelector(".name").textContent;
         chatHeaderName = document.querySelector(".chatheadername");
         var headerNum = item.querySelector(".headerNum").value;
