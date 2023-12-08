@@ -31,6 +31,7 @@ menulinks.forEach(link => {
 
 const items = document.querySelectorAll(".item");
 const chatbox = document.querySelector(".chatbox")
+const container = document.querySelector('.main-content');
 
 items.forEach(item => {
     item.addEventListener('click', (e) => {
@@ -40,9 +41,11 @@ items.forEach(item => {
             chatbox.style.display = "none";
 
 
+
         })
 
         chatbox.style.display = "flex";
+        container.style.width = "auto"
         itemName = item.querySelector(".name").textContent;
         chatHeaderName = document.querySelector(".chatheadername");
         var headerNum = item.querySelector(".headerNum").value;
