@@ -74,8 +74,7 @@ delMsg.forEach(item => {
             url: "mainSQL.php",
             data: { "receiver": receiver },
             success: function () {
-                location.href = "homepage.php";
-                $(".message-item").load(location.href + " .message-item");
+                $("#message-list").load(location.href + " #message-list");
             },
         });
     });
@@ -93,7 +92,7 @@ delCont.forEach(item => {
             url: "mainSQL.php",
             data: { "contNum": contNum },
             success: function () {
-                $(".contact-container").load(location.href + " .contact-container");
+                $("#Contact-list").load(location.href + " #Contact-list");
             },
         });
     });

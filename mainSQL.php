@@ -97,6 +97,7 @@
     if (isset($_POST['logout'])) {
         session_destroy();
         session_abort();
+        $_SESSION = [];
         header('location: index.php');
     }
 ?>
