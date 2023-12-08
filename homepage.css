@@ -251,7 +251,7 @@ li a {
 
 .message-item,
 .contact-item {
-    padding: 10px;
+    padding: 10px 0 10px 20px;
     position: relative;
 }
 
@@ -293,6 +293,8 @@ h1 {
     align-items: center;
     gap: 10px;
     padding: 10px 0 10px 20px;
+    border-bottom: 1px var(--secondary-color) solid;
+
 }
 
 .chat-header p {
@@ -333,6 +335,8 @@ h1 {
     padding: 10px 20px 0 20px;
     display: flex;
     gap: 10px;
+    margin-bottom: 10px;
+
 
 }
 
@@ -365,7 +369,6 @@ h1 {
     border-radius: 10px;
     padding: 10px;
     border: none;
-    margin-bottom: 10px;
     height: 40px;
     background-color: var(--tertiary-color);
 
@@ -434,11 +437,13 @@ h1 {
         width: 100%;
         display: flex;
         align-items: center;
-        padding-bottom: 10px;
+        padding: 10px;
         border-radius: 10px;
         font-size: var(--primary-font);
 
     }
+
+
 
     .message-item:hover,
     .contact-item:hover {
